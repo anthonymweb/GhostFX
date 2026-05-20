@@ -1,0 +1,20 @@
+{
+  "name": "ghostfx-ai-agent",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/frontend",
+    "packages/shared-types",
+    "packages/ui"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @ghostfx/frontend",
+    "build": "npm run build --workspace @ghostfx/frontend",
+    "preview": "npm run preview --workspace @ghostfx/frontend",
+    "dev:backend": "uvicorn app.main:app --app-dir apps/backend --reload --host 0.0.0.0 --port 8000",
+    "dev:frontend": "npm run dev --workspace @ghostfx/frontend",
+    "build:frontend": "npm run build --workspace @ghostfx/frontend",
+    "lint:frontend": "npm run lint --workspace @ghostfx/frontend",
+    "typecheck:frontend": "npm run typecheck --workspace @ghostfx/frontend"
+  }
+}
