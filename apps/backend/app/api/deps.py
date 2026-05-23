@@ -22,7 +22,7 @@ async def get_current_user(
     if not credentials:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required.")
     try:
-        payload = decode_supabase_token(credentials.credentials)
+        payload = await decode_supabase_token(credentials.credentials)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token.") from exc
 

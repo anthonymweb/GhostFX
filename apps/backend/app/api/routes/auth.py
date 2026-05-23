@@ -28,7 +28,7 @@ async def register(
     token = auth_header.removeprefix("Bearer ")
 
     try:
-        jwt_payload = decode_supabase_token(token)
+        jwt_payload = await decode_supabase_token(token)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token.") from exc
 
