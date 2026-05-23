@@ -22,15 +22,20 @@ export async function register(input: {
     password: input.password,
   });
   if (error) throw error;
-  if (!data.session) throw new Error('Account created. Check email for confirmation link.');
 
-  await api.post('/auth/register', {
-    email: input.email,
-    full_name: input.full_name,
-    experience_mode: input.experience_mode,
-  });
+  if (data.session) {
+    // Email confirmation off — session available immediately
+    const token = data.session.access_token;
+    await api.post('/auth/register', {
+      email: input.email,
+      full_name: input.full_name,
+      experience_mode: input.experience_mode,
+    }, { headers: { Authorization: `Bearer ${token}` } });
+    return data.session;
+  }
 
-  return data.session;
+  // Email confirmation on — user must confirm, then login
+  throw new Error('Check your email for a confirmation link, then sign in.');
 }
 
 export async function fetchMe() {

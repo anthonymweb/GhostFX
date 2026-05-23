@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
+from app.core.security import decode_supabase_token
 from app.models.portfolio import Portfolio
 from app.models.subscription import Subscription
 from app.models.user import ExperienceMode, User
@@ -17,11 +18,27 @@ notification_service = NotificationService()
 
 @router.post("/register", response_model=UserResponse)
 async def register(
+    request: Request,
     payload: RegisterRequest,
-    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> UserResponse:
-    result = await db.execute(select(User).where(User.id == current_user.id))
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing authorization header.")
+    token = auth_header.removeprefix("Bearer ")
+
+    try:
+        jwt_payload = decode_supabase_token(token)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token.") from exc
+
+    supabase_id = jwt_payload.get("sub")
+    email = jwt_payload.get("email", payload.email)
+
+    if not supabase_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload.")
+
+    result = await db.execute(select(User).where(User.id == supabase_id))
     existing = result.scalar_one_or_none()
     if existing:
         return UserResponse.from_model(existing)
@@ -32,8 +49,8 @@ async def register(
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid experience mode.") from exc
 
     user = User(
-        id=current_user.id,
-        email=payload.email,
+        id=supabase_id,
+        email=email,
         full_name=payload.full_name.strip(),
         experience_mode=experience_mode,
     )
