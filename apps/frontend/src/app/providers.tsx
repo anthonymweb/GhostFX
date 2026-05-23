@@ -16,6 +16,11 @@ function AuthBootstrap({ children }: PropsWithChildren) {
   const clearSession = useAuthStore((state) => state.clearSession);
 
   useEffect(() => {
+    if (!supabase) {
+      setBootstrapped(true);
+      return;
+    }
+
     const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
       if (!newSession) {
@@ -24,7 +29,7 @@ function AuthBootstrap({ children }: PropsWithChildren) {
     });
 
     return () => listener?.subscription.unsubscribe();
-  }, [setSession, clearSession]);
+  }, [setSession, clearSession, setBootstrapped]);
 
   useEffect(() => {
     let active = true;

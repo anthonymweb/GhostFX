@@ -1,9 +1,10 @@
 import type { User } from '@ghostfx/shared-types';
 
 import { api } from '@/lib/api';
-import { supabase } from '@/lib/supabase';
+import { requireSupabase } from '@/lib/supabase';
 
 export async function login(email: string, password: string) {
+  const supabase = requireSupabase();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
   return data.session;
@@ -15,6 +16,7 @@ export async function register(input: {
   password: string;
   experience_mode: string;
 }) {
+  const supabase = requireSupabase();
   const { data, error } = await supabase.auth.signUp({
     email: input.email,
     password: input.password,
@@ -37,5 +39,6 @@ export async function fetchMe() {
 }
 
 export async function logout() {
+  const supabase = requireSupabase();
   await supabase.auth.signOut();
 }
