@@ -7,14 +7,12 @@ import { useAuthStore } from '@/store/auth-store';
 
 function ProtectedRoute() {
   const session = useAuthStore((state) => state.session);
-  const user = useAuthStore((state) => state.user);
-  return session && user ? <AppShell><DashboardPage /></AppShell> : <Navigate to="/login" replace />;
+  return session ? <AppShell><DashboardPage /></AppShell> : <Navigate to="/login" replace />;
 }
 
 function PublicRoute() {
   const session = useAuthStore((state) => state.session);
-  const user = useAuthStore((state) => state.user);
-  return session && user ? <Navigate to="/" replace /> : <LoginPage />;
+  return session ? <Navigate to="/" replace /> : <LoginPage />;
 }
 
 export function AppRouter() {

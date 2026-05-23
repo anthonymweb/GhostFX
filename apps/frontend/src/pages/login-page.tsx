@@ -22,7 +22,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { Button, Card, CardContent } from '@ghostfx/ui';
 
-import { fetchMe, login, register } from '@/services/auth-service';
+import { login, register } from '@/services/auth-service';
 import { useAuthStore } from '@/store/auth-store';
 
 type AuthMode = 'login' | 'register';
@@ -81,7 +81,6 @@ function FieldSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
 export function LoginPage() {
   const navigate = useNavigate();
   const setSession = useAuthStore((state) => state.setSession);
-  const setUser = useAuthStore((state) => state.setUser);
   const [authMode, setAuthMode] = useState<AuthMode>('login');
   const [mode, setMode] = useState('beginner');
   const [showPassword, setShowPassword] = useState(false);
@@ -98,12 +97,10 @@ export function LoginPage() {
           ? await login(form.email, form.password)
           : await register({ ...form, experience_mode: mode });
       useAuthStore.getState().setSession(session);
-      const user = await fetchMe();
-      return { session, user };
+      return session;
     },
-    onSuccess: ({ session, user }) => {
+    onSuccess: (session) => {
       setSession(session);
-      setUser(user);
       navigate('/');
     },
     onError: () => useAuthStore.getState().clearSession(),

@@ -39,19 +39,10 @@ function AuthBootstrap({ children }: PropsWithChildren) {
         setBootstrapped(true);
         return;
       }
-      try {
-        const user = await fetchMe();
-        if (active) {
-          setUser(user);
-        }
-      } catch {
-        if (active) {
-          clearSession();
-        }
-      } finally {
-        if (active) {
-          setBootstrapped(true);
-        }
+      const user = await fetchMe();
+      if (active) {
+        setUser(user);
+        setBootstrapped(true);
       }
     }
 
@@ -59,7 +50,7 @@ function AuthBootstrap({ children }: PropsWithChildren) {
     return () => {
       active = false;
     };
-  }, [session?.access_token, clearSession, setBootstrapped, setUser]);
+  }, [session?.access_token, setBootstrapped, setUser]);
 
   if (!bootstrapped) {
     return (
