@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { AxiosError, isAxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Activity,
@@ -36,17 +36,15 @@ const features = [
 const demoCredentials = { email: 'demo@ghostfx.ai', password: 'ghostfx123' };
 
 function getErrorMessage(error: unknown) {
-  if (isAxiosError(error)) {
-    const detail = (error.response?.data as { detail?: string } | undefined)?.detail;
-    if (detail) return detail;
-    if (error.code === 'ERR_NETWORK') return 'Cannot reach the API. Start the backend or check VITE_API_URL.';
+  if (error instanceof Error) {
+    if (isAxiosError(error)) {
+      const detail = (error.response?.data as { detail?: string } | undefined)?.detail;
+      if (detail) return detail;
+      if (error.code === 'ERR_NETWORK') return 'Cannot reach backend. Check VITE_API_URL.';
+      return `Backend error (${error.response?.status}): ${error.message}`;
+    }
+    return error.message;
   }
-  if (error instanceof AxiosError) {
-    const detail = (error.response?.data as { detail?: string } | undefined)?.detail;
-    if (detail) return detail;
-    if (error.code === 'ERR_NETWORK') return 'Cannot reach the API. Start the backend or check VITE_API_URL.';
-  }
-  if (error instanceof Error) return error.message;
   return 'Authentication failed. Check your details and try again.';
 }
 
