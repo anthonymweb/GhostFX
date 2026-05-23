@@ -9,13 +9,12 @@ import { useAuthStore } from '@/store/auth-store';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const user = useAuthStore((state) => state.user);
-  const refreshToken = useAuthStore((state) => state.refreshToken);
   const clearSession = useAuthStore((state) => state.clearSession);
   const [menuOpen, setMenuOpen] = useState(false);
 
   async function signOut() {
     try {
-      await logout(refreshToken);
+      await logout();
     } finally {
       clearSession();
     }

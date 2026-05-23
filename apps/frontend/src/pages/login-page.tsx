@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
+import { AxiosError, isAxiosError } from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Activity,
@@ -36,11 +36,17 @@ const features = [
 const demoCredentials = { email: 'demo@ghostfx.ai', password: 'ghostfx123' };
 
 function getErrorMessage(error: unknown) {
+  if (isAxiosError(error)) {
+    const detail = (error.response?.data as { detail?: string } | undefined)?.detail;
+    if (detail) return detail;
+    if (error.code === 'ERR_NETWORK') return 'Cannot reach the API. Start the backend or check VITE_API_URL.';
+  }
   if (error instanceof AxiosError) {
     const detail = (error.response?.data as { detail?: string } | undefined)?.detail;
     if (detail) return detail;
     if (error.code === 'ERR_NETWORK') return 'Cannot reach the API. Start the backend or check VITE_API_URL.';
   }
+  if (error instanceof Error) return error.message;
   return 'Authentication failed. Check your details and try again.';
 }
 
@@ -77,6 +83,7 @@ function FieldSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
 export function LoginPage() {
   const navigate = useNavigate();
   const setSession = useAuthStore((state) => state.setSession);
+  const setUser = useAuthStore((state) => state.setUser);
   const [authMode, setAuthMode] = useState<AuthMode>('login');
   const [mode, setMode] = useState('beginner');
   const [showPassword, setShowPassword] = useState(false);
@@ -88,16 +95,17 @@ export function LoginPage() {
 
   const authMutation = useMutation({
     mutationFn: async () => {
-      const tokens =
+      const session =
         authMode === 'login'
           ? await login(form.email, form.password)
           : await register({ ...form, experience_mode: mode });
-      useAuthStore.getState().setTokens(tokens.access_token, tokens.refresh_token);
+      useAuthStore.getState().setSession(session);
       const user = await fetchMe();
-      return { tokens, user };
+      return { session, user };
     },
-    onSuccess: ({ tokens, user }) => {
-      setSession(tokens.access_token, tokens.refresh_token, user);
+    onSuccess: ({ session, user }) => {
+      setSession(session);
+      setUser(user);
       navigate('/');
     },
     onError: () => useAuthStore.getState().clearSession(),
@@ -118,7 +126,6 @@ export function LoginPage() {
 
   return (
     <div className="relative flex min-h-screen overflow-hidden">
-      {/* background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
 
       <motion.div
@@ -149,7 +156,6 @@ export function LoginPage() {
         }}
       />
 
-      {/* left brand */}
       <motion.div
         className="relative z-10 hidden w-1/2 flex-col justify-between p-12 lg:flex"
         initial={{ opacity: 0, x: -60 }}
@@ -214,7 +220,6 @@ export function LoginPage() {
         </motion.div>
       </motion.div>
 
-      {/* right auth */}
       <div className="relative z-10 flex w-full items-center justify-center px-4 py-8 lg:w-1/2">
         <motion.div
           className="w-full max-w-md"
@@ -225,7 +230,6 @@ export function LoginPage() {
           <Card className="overflow-hidden border-white/[0.06] bg-slate-900/70 shadow-2xl shadow-black/50 backdrop-blur-2xl">
             <div className="h-[3px] w-full bg-gradient-to-r from-cyan-400 via-emerald-400 to-cyan-400" />
             <CardContent className="p-8">
-              {/* mobile brand */}
               <div className="mb-8 flex items-center gap-3 lg:hidden">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-emerald-400 shadow-lg shadow-cyan-400/25">
                   <Bot className="h-4 w-4 text-slate-950" />
@@ -233,7 +237,6 @@ export function LoginPage() {
                 <span className="text-sm font-medium uppercase tracking-[0.25em] text-slate-400">GhostFX</span>
               </div>
 
-              {/* header */}
               <motion.div className="mb-8" layout="position">
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -255,7 +258,6 @@ export function LoginPage() {
                 </AnimatePresence>
               </motion.div>
 
-              {/* tab toggle */}
               <div className="mb-7 flex rounded-xl border border-white/[0.06] bg-white/[0.03] p-1">
                 {(['login', 'register'] as AuthMode[]).map((tab) => (
                   <button
@@ -281,7 +283,6 @@ export function LoginPage() {
                 ))}
               </div>
 
-              {/* form */}
               <form className="space-y-4" onSubmit={onSubmit}>
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -381,7 +382,6 @@ export function LoginPage() {
                 </Button>
               </form>
 
-              {/* quick demo */}
               {authMode === 'login' && (
                 <motion.div
                   className="mt-5 text-center"
@@ -400,7 +400,6 @@ export function LoginPage() {
                 </motion.div>
               )}
 
-              {/* footer */}
               <motion.p
                 className="mt-6 text-center text-xs text-slate-600"
                 initial={{ opacity: 0 }}

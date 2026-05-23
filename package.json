@@ -16,5 +16,8 @@
     "build:frontend": "npm run build --workspace @ghostfx/frontend",
     "lint:frontend": "npm run lint --workspace @ghostfx/frontend",
     "typecheck:frontend": "npm run typecheck --workspace @ghostfx/frontend"
+  },
+  "devDependencies": {
+    "vercel": "^54.4.1"
   }
 }

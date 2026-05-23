@@ -3,21 +3,34 @@ import { PropsWithChildren, useEffect, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
 import { LoadingPanel } from '@/components/common/loading-panel';
+import { supabase } from '@/lib/supabase';
 import { fetchMe } from '@/services/auth-service';
 import { useAuthStore } from '@/store/auth-store';
 
 function AuthBootstrap({ children }: PropsWithChildren) {
-  const token = useAuthStore((state) => state.token);
+  const session = useAuthStore((state) => state.session);
   const bootstrapped = useAuthStore((state) => state.bootstrapped);
   const setBootstrapped = useAuthStore((state) => state.setBootstrapped);
+  const setSession = useAuthStore((state) => state.setSession);
   const setUser = useAuthStore((state) => state.setUser);
   const clearSession = useAuthStore((state) => state.clearSession);
+
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+      if (!newSession) {
+        clearSession();
+      }
+    });
+
+    return () => listener?.subscription.unsubscribe();
+  }, [setSession, clearSession]);
 
   useEffect(() => {
     let active = true;
 
     async function bootstrap() {
-      if (!token) {
+      if (!session?.access_token) {
         setBootstrapped(true);
         return;
       }
@@ -41,7 +54,7 @@ function AuthBootstrap({ children }: PropsWithChildren) {
     return () => {
       active = false;
     };
-  }, [clearSession, setBootstrapped, setUser, token]);
+  }, [session?.access_token, clearSession, setBootstrapped, setUser]);
 
   if (!bootstrapped) {
     return (

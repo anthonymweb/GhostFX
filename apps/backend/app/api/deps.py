@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.security import decode_token
+from app.core.security import decode_supabase_token
 from app.models.user import User, UserRole
 
 
@@ -18,16 +18,15 @@ async def get_current_user(
     if not credentials:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required.")
     try:
-        payload = decode_token(credentials.credentials)
+        payload = decode_supabase_token(credentials.credentials)
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token.") from exc
-    if payload.get("type") != "access":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token type.")
-    # `User.id` is stored as a string (UUIDMixin uses String(36)).
-    # Ensure we compare like-for-like to avoid subtle type mismatches.
-    subject = str(payload.get("sub"))
-    result = await db.execute(select(User).where(User.id == subject))
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token.") from exc
 
+    supabase_id = payload.get("sub")
+    if not supabase_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload.")
+
+    result = await db.execute(select(User).where(User.id == supabase_id))
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found.")

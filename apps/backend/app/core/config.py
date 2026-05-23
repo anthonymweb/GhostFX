@@ -19,10 +19,13 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
     enable_rate_limiter: bool = False
 
+    supabase_url: str = ""
+    supabase_anon_key: str = ""
+    supabase_jwt_secret: str = ""
+
     jwt_secret: str = "change-me"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24
-    refresh_token_expire_days: int = 30
 
     telegram_bot_token: str = ""
     telegram_webhook_secret: str = ""

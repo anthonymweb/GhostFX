@@ -18,12 +18,12 @@ class ExperienceMode(str, enum.Enum):
     advanced = "advanced"
 
 
-class User(UUIDMixin, TimestampMixin, Base):
+class User(TimestampMixin, Base):
     __tablename__ = "users"
 
+    id: Mapped[str] = mapped_column(String(255), primary_key=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     full_name: Mapped[str] = mapped_column(String(255))
-    hashed_password: Mapped[str] = mapped_column(String(255))
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.user)
     experience_mode: Mapped[ExperienceMode] = mapped_column(Enum(ExperienceMode), default=ExperienceMode.beginner)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
