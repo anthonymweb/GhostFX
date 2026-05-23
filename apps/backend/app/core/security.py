@@ -16,8 +16,9 @@ JWKS_CACHE: list[dict[str, Any]] = []
 async def _fetch_jwks() -> list[dict[str, Any]]:
     if JWKS_CACHE:
         return JWKS_CACHE
+    url = settings.supabase_url.rstrip("/")
     async with httpx.AsyncClient() as client:
-        resp = await client.get(f"{settings.supabase_url}/.well-known/jwks.json")
+        resp = await client.get(f"{url}/auth/v1/.well-known/jwks.json")
         resp.raise_for_status()
         keys = resp.json().get("keys", [])
         JWKS_CACHE.extend(keys)
