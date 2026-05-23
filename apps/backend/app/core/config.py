@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import List
+from typing import List, Union
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     debug: bool = True
     api_prefix: str = "/api/v1"
-    cors_origins: List[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    cors_origins: Union[str, List[str]] = ["http://localhost:5173", "http://127.0.0.1:5173"]
     cors_origin_regex: str | None = r"https://.*\.vercel\.app|http://localhost:\d+|http://127\.0\.0\.1:\d+"
 
     database_url: str = "sqlite+aiosqlite:///./ghostfx.db"
@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     stripe_publishable_key: str = ""
     stripe_webhook_secret: str = ""
 
-    default_watchlist: List[str] = ["EURUSD", "GBPUSD", "USDJPY", "XAUUSD", "BTCUSD", "NAS100"]
+    default_watchlist: Union[str, List[str]] = ["EURUSD", "GBPUSD", "USDJPY", "XAUUSD", "BTCUSD", "NAS100"]
     market_refresh_seconds: int = 30
     signal_scan_seconds: int = 60
     paper_starting_balance: float = 10000.0
