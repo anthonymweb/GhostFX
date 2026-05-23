@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
@@ -11,6 +13,7 @@ from app.models.user import User, UserRole
 from app.services.notification_service import NotificationService
 
 
+logger = logging.getLogger(__name__)
 bearer_scheme = HTTPBearer(auto_error=False)
 notification_service = NotificationService()
 
@@ -23,8 +26,9 @@ async def get_current_user(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required.")
     try:
         payload = await decode_supabase_token(credentials.credentials)
-    except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token.") from exc
+    except Exception as exc:
+        logger.exception("JWT verification failed")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Token error: {exc}") from exc
 
     supabase_id = payload.get("sub")
     if not supabase_id:
