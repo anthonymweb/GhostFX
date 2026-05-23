@@ -17,4 +17,4 @@ pandas==2.2.3
 numpy==2.2.5
 redis>=5.2.1
 celery>=5.5.2
-fastapi-limiter>=0.1.6
+fastapi-limiter==0.1.6
