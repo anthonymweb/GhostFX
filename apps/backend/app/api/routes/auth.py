@@ -12,7 +12,7 @@ from app.models.portfolio import Portfolio
 from app.models.refresh_token import RefreshToken
 from app.models.subscription import Subscription
 from app.models.user import ExperienceMode, User
-from app.schemas.auth import LoginRequest, LogoutRequest, RefreshTokenRequest, RegisterRequest, TokenResponse, UserResponse
+from app.schemas.auth import LoginRequest, LogoutRequest, RefreshTokenRequest, RegisterRequest, TokenResponse, UpdateUserRequest, UserResponse
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -126,4 +126,25 @@ async def logout(payload: LogoutRequest, db: AsyncSession = Depends(get_db), cur
 
 @router.get("/me", response_model=UserResponse)
 async def me(current_user: User = Depends(get_current_user)) -> UserResponse:
+    return UserResponse.from_model(current_user)
+
+
+@router.patch("/me", response_model=UserResponse)
+async def update_me(
+    payload: UpdateUserRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> UserResponse:
+    if payload.full_name is not None:
+        current_user.full_name = payload.full_name.strip()
+    if payload.experience_mode is not None:
+        current_user.experience_mode = ExperienceMode(payload.experience_mode)
+    if payload.alert_on_buy is not None:
+        current_user.alert_on_buy = payload.alert_on_buy
+    if payload.alert_on_sell is not None:
+        current_user.alert_on_sell = payload.alert_on_sell
+    if payload.alert_on_hold is not None:
+        current_user.alert_on_hold = payload.alert_on_hold
+    await db.commit()
+    await db.refresh(current_user)
     return UserResponse.from_model(current_user)

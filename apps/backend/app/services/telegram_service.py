@@ -57,9 +57,6 @@ class TelegramService:
             "deep_link_hint": "Use Telegram Web App buttons to open GhostFX directly inside Telegram.",
         }
 
-    def _icon(self, action: str) -> str:
-        if action == "BUY":
-            return "BUY"
-        if action == "SELL":
-            return "SELL"
-        return "WAIT"
+    @staticmethod
+    def _icon(action: str) -> str:
+        return action if action in {"BUY", "SELL"} else "WAIT"

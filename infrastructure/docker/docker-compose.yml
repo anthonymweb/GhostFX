@@ -36,7 +36,8 @@ services:
     depends_on:
       - backend
       - redis
-    command: sh -c "cd /app/apps/backend && celery -A app.tasks.celery_app.celery_app worker --loglevel=info"
+    command: celery -A app.tasks.celery_app.celery_app worker --loglevel=info
+    working_dir: /app/apps/backend
 
   frontend:
     build:

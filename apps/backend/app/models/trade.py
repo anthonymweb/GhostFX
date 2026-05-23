@@ -1,7 +1,7 @@
 import enum
 
 from sqlalchemy import Enum, Float, ForeignKey, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 from app.models.mixins import JsonDict, TimestampMixin, UUIDMixin
@@ -28,3 +28,5 @@ class Trade(UUIDMixin, TimestampMixin, Base):
     pnl: Mapped[float | None] = mapped_column(Float, nullable=True)
     status: Mapped[TradeStatus] = mapped_column(Enum(TradeStatus), default=TradeStatus.open)
     metadata_json: Mapped[dict] = mapped_column(JsonDict, default=dict)
+
+    portfolio = relationship("Portfolio", back_populates="trades")

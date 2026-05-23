@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
@@ -13,7 +13,7 @@ telegram_service = TelegramService()
 
 
 class TelegramConnectRequest(BaseModel):
-    chat_id: str
+    chat_id: str = Field(min_length=1, max_length=64, pattern=r"^\d+$")
 
 
 @router.get("/channels")

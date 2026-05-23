@@ -27,11 +27,11 @@ async def market_overview(current_user: User = Depends(get_current_user)) -> Mar
 async def candles(
     symbol: str = Query("EURUSD"),
     timeframe: str = Query("M15"),
-    candles: int = Query(120, ge=60, le=500),
+    count: int = Query(120, ge=60, le=500, alias="candles"),
     current_user: User = Depends(get_current_user),
 ) -> dict:
-    snapshot = market_service.generate_market_snapshot(symbol, timeframe, candles)
-    data = snapshot.candles.tail(candles).to_dict(orient="records")
+    snapshot = market_service.generate_market_snapshot(symbol, timeframe, count)
+    data = snapshot.candles.tail(count).to_dict(orient="records")
     serialized = []
     for row in data:
         serialized.append({key: value.isoformat() if hasattr(value, "isoformat") else float(value) if hasattr(value, "item") else value for key, value in row.items()})

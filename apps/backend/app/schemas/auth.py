@@ -37,6 +37,9 @@ class UserResponse(BaseModel):
     broker_connected: bool
     paper_trading_enabled: bool
     telegram_connected: bool
+    alert_on_buy: bool = True
+    alert_on_sell: bool = True
+    alert_on_hold: bool = False
 
     @classmethod
     def from_model(cls, user) -> "UserResponse":
@@ -49,4 +52,15 @@ class UserResponse(BaseModel):
             broker_connected=user.broker_connected,
             paper_trading_enabled=user.paper_trading_enabled,
             telegram_connected=bool(user.telegram_chat_id),
+            alert_on_buy=user.alert_on_buy,
+            alert_on_sell=user.alert_on_sell,
+            alert_on_hold=user.alert_on_hold,
         )
+
+
+class UpdateUserRequest(BaseModel):
+    full_name: str | None = None
+    experience_mode: str | None = None
+    alert_on_buy: bool | None = None
+    alert_on_sell: bool | None = None
+    alert_on_hold: bool | None = None

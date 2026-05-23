@@ -18,4 +18,4 @@ class Portfolio(UUIDMixin, TimestampMixin, Base):
     stats: Mapped[dict] = mapped_column(JsonDict, default=dict)
 
     user = relationship("User", back_populates="portfolios")
-    trades = relationship("Trade", backref="portfolio", cascade="all, delete-orphan")
+    trades = relationship("Trade", back_populates="portfolio", cascade="all, delete-orphan")

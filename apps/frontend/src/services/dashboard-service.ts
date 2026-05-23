@@ -37,6 +37,11 @@ export async function connectTelegram(chatId: string) {
   return data;
 }
 
+export async function updateUser(updates: Partial<{ full_name: string; experience_mode: string; alert_on_buy: boolean; alert_on_sell: boolean; alert_on_hold: boolean }>) {
+  const { data } = await api.patch<import('@ghostfx/shared-types').User>('/auth/me', updates);
+  return data;
+}
+
 export async function testTelegram() {
   const { data } = await api.post<{ sent: boolean }>('/notifications/telegram/test');
   return data;

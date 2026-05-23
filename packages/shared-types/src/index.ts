@@ -11,6 +11,9 @@ export interface User {
   broker_connected: boolean;
   paper_trading_enabled: boolean;
   telegram_connected: boolean;
+  alert_on_buy: boolean;
+  alert_on_sell: boolean;
+  alert_on_hold: boolean;
 }
 
 export interface AuthTokenResponse {

@@ -30,6 +30,9 @@ class User(UUIDMixin, TimestampMixin, Base):
     telegram_chat_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     broker_connected: Mapped[bool] = mapped_column(Boolean, default=False)
     paper_trading_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    alert_on_buy: Mapped[bool] = mapped_column(Boolean, default=True)
+    alert_on_sell: Mapped[bool] = mapped_column(Boolean, default=True)
+    alert_on_hold: Mapped[bool] = mapped_column(Boolean, default=False)
 
     portfolios = relationship("Portfolio", back_populates="user", cascade="all, delete-orphan")
     subscriptions = relationship("Subscription", back_populates="user", cascade="all, delete-orphan")

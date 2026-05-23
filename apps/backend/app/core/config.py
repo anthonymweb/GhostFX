@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import List
 
-from pydantic import Field, field_validator
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     debug: bool = True
     api_prefix: str = "/api/v1"
-    cors_origins: List[str] = Field(default_factory=lambda: ["http://localhost:5173", "http://127.0.0.1:5173"])
+    cors_origins: List[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
     cors_origin_regex: str | None = r"https://.*\.vercel\.app|http://localhost:\d+|http://127\.0\.0\.1:\d+"
 
     database_url: str = "sqlite+aiosqlite:///./ghostfx.db"
@@ -37,9 +37,7 @@ class Settings(BaseSettings):
     stripe_publishable_key: str = ""
     stripe_webhook_secret: str = ""
 
-    default_watchlist: List[str] = Field(
-        default_factory=lambda: ["EURUSD", "GBPUSD", "USDJPY", "XAUUSD", "BTCUSD", "NAS100"]
-    )
+    default_watchlist: List[str] = ["EURUSD", "GBPUSD", "USDJPY", "XAUUSD", "BTCUSD", "NAS100"]
     market_refresh_seconds: int = 30
     signal_scan_seconds: int = 60
     paper_starting_balance: float = 10000.0
@@ -57,11 +55,11 @@ class Settings(BaseSettings):
                 return False
         return value
 
-    @field_validator("cors_origins", mode="before")
+    @field_validator("cors_origins", "default_watchlist", mode="before")
     @classmethod
-    def normalize_cors_origins(cls, value):
+    def parse_csv_list(cls, value):
         if isinstance(value, str):
-            return [origin.strip() for origin in value.split(",") if origin.strip()]
+            return [item.strip() for item in value.split(",") if item.strip()]
         return value
 
 
