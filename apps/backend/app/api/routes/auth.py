@@ -29,8 +29,8 @@ async def register(
 
     try:
         jwt_payload = await decode_supabase_token(token)
-    except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token.") from exc
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
 
     supabase_id = jwt_payload.get("sub")
     email = jwt_payload.get("email", payload.email)

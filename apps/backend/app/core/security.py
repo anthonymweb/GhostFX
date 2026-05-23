@@ -16,6 +16,8 @@ JWKS_CACHE: list[dict[str, Any]] = []
 async def _fetch_jwks() -> list[dict[str, Any]]:
     if JWKS_CACHE:
         return JWKS_CACHE
+    if not settings.supabase_url:
+        raise RuntimeError("SUPABASE_URL is not configured")
     url = settings.supabase_url.rstrip("/")
     async with httpx.AsyncClient() as client:
         resp = await client.get(f"{url}/auth/v1/.well-known/jwks.json")
@@ -48,7 +50,10 @@ async def decode_supabase_token(token: str) -> dict[str, Any]:
     # ES256 / RS256 — verify via JWKS
     if alg in ("ES256", "RS256"):
         kid = header.get("kid", "")
-        keys = await _fetch_jwks()
+        try:
+            keys = await _fetch_jwks()
+        except Exception as exc:
+            raise ValueError(f"Failed to fetch JWKS: {exc}") from exc
         key_data = next((k for k in keys if k.get("kid") == kid), None)
         if not key_data:
             raise ValueError(f"JWK key not found for kid {kid}")

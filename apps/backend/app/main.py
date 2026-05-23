@@ -1,9 +1,9 @@
 from contextlib import asynccontextmanager
 import logging
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, ORJSONResponse
+from fastapi.responses import ORJSONResponse
 from redis import asyncio as redis_asyncio
 from fastapi_limiter import FastAPILimiter
 
@@ -41,13 +41,6 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
     lifespan=lifespan,
 )
-
-
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    logger.exception("Unhandled exception during request: %s %s", request.method, request.url)
-    return JSONResponse(status_code=500, content={"detail": f"Internal server error: {exc}"})
-
 
 cors_origins = settings.cors_origins
 if isinstance(cors_origins, str):
