@@ -60,7 +60,7 @@ async def get_current_user(
             "and alerts you via Telegram. "
             "Start by checking your dashboard for the latest signal."
         ),
-        metadata_json={"type": "welcome", "persistent": True},
+        metadata={"type": "welcome", "persistent": True},
     )
 
     await db.commit()

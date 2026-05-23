@@ -79,7 +79,7 @@ async def register(
             "the agent will guide you on whether to trade or sit tight. "
             "You can customize alert preferences and link Telegram in Settings."
         ),
-        metadata_json={"type": "welcome", "persistent": True},
+        metadata={"type": "welcome", "persistent": True},
     )
 
     await db.commit()
