@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     debug: bool = True
     api_prefix: str = "/api/v1"
     cors_origins: Union[str, List[str]] = ["http://localhost:5173", "http://127.0.0.1:5173"]
-    cors_origin_regex: str | None = r"https://.*\.vercel\.app|http://localhost:\d+|http://127\.0\.0\.1:\d+"
+    cors_origin_regex: str | None = r"https://.*\.vercel\.app|https://.*\.onrender\.com|http://localhost:\d+|http://127\.0\.0\.1:\d+"
 
     database_url: str = "sqlite+aiosqlite:///./ghostfx.db"
     redis_url: str = "redis://localhost:6379/0"
